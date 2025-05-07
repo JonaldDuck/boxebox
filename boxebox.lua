@@ -37,8 +37,60 @@ local path = ('%s\\config\\addons\\%s'):fmt(AshitaCore:GetInstallPath(), 'boxebo
 
 local boxDict = {};
 
+local showUi = true;
+
 
 print("-- boxebox --")
+
+local function renderUi()
+    if (not showUi) then
+        return;
+    end
+
+    imgui.SetNextWindowSize({ 600, 400, });
+    imgui.SetNextWindowSizeConstraints({ 600, 400, }, { FLT_MAX, FLT_MAX, });
+
+    if (imgui.Begin('boxebox', showUi, ImGuiWindowFlags_NoResize)) then
+        
+        imgui.Text("Ephemeral Box Tracker")
+        imgui.Separator()
+
+        imgui.BeginChild("boxContents", { 580, 300, }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+        local dictKeys = {}
+
+        --table for sorting so its alphabetical
+        for k, _ in pairs(boxDict) do
+            table.insert(dictKeys, k)
+        end
+        table.sort(dictKeys)
+
+        for i = 1, #dictKeys do
+            local itemName = dictKeys[i]
+            local itemCount = boxDict[itemName]
+
+            if (itemCount ~= nil) then
+                imgui.TextColored({ 1.0, 0.5, 0.5, 1.0 }, itemName .. ": ");
+                imgui.SameLine()
+                imgui.Text(itemCount)
+            end
+        end
+
+        imgui.EndChild();
+
+        imgui.Separator()
+        imgui.Text("Commands:")
+        imgui.Text("/boxebox reset - Gives instructions on how to reset your box.")
+        imgui.Text("/boxebox show - Shows the UI.")
+        imgui.Text("/boxebox hide - Hides the UI.")
+        imgui.Text("The ebox.json file can be found in config/addons/boxebox")
+
+        if (imgui.Button("Close")) then
+            showUi = false
+        end
+        imgui.End();
+    end
+end
 
 local function removeColorCodes(str, color)
     -- Removes color codes
@@ -106,8 +158,6 @@ ashita.events.register('text_in', 'text_in_cb', function (e)
             end
 
             local totalAmount = tonumber(boxDict[itemName]) - tonumber(amount)
-
-            print(totalAmount)
             
             boxDict[itemName] = tostring(totalAmount)
             if totalAmount <= 0 then
@@ -166,5 +216,21 @@ ashita.events.register("command", "command_callback1", function (e)
             print("To reset your box contents, delete the ebox.json file in the config/addons/boxebox folder.");
             print("Note that if you have logged into another character, this will not track the differences between them or if you've played on multiple.");
         end
+        if (args[2] == "show") then
+            print("show ui boxebox")
+            showUi = true
+        end
+        if (args[2] == "hide") then
+            print("hide ui boxebox")
+            showUi = false
+        end
     end
 end);
+
+ashita.events.register('d3d_present', 'present_cb', function ()
+    if (showUi) then
+        renderUi();
+    end
+end);
+
+

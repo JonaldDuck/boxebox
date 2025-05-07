@@ -10,3 +10,16 @@ To install, copy the boxebox folder into your addons folder
 Usage:
 load addon:
 /addon load boxebox 
+
+To show the gui for the contents of your box:
+/boxebox show
+
+To hide the boxebox gui:
+/boxebox hide
+
+To show instructions on how to reset your box contents:
+/boxebox reset
+
+Example image:
+
+![alt text](image.png)
