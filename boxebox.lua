@@ -40,6 +40,12 @@ local boxDict = {};
 
 print("-- boxebox --")
 
+local function removeColorCodes(str, color)
+    -- Removes color codes
+    -- I hate it here
+    return str:gsub(color, ""):gsub("\x1E\x01", "")
+end
+
 -- example ebox moessage
 -- Ephemeral Box : I have 2 Ifritite. (Goldsmithing    Rock)
 
@@ -50,9 +56,10 @@ ashita.events.register('text_in', 'text_in_cb', function (e)
             --update boxDicts with parsed item and how many we have of it
 
             --strip out the parenthesis at the end
-            local itemString = string.gsub(e.message, "%([^()]*%)", "")
+            local itemString = string.lower(string.gsub(e.message, "%([^()]*%)", ""))
             --strip out the characters before the item of ebox message and the period at the end
             itemString = string.sub(itemString, 23, string.len(itemString)-3)
+            
 
             --strip out the number of items we have of it
             local amount = itemString:match("(%d+) (.+)")
@@ -65,20 +72,54 @@ ashita.events.register('text_in', 'text_in_cb', function (e)
         end
         if string.find(e.message, "You store") then
             --strip out you store
-            local itemString = string.sub(e.message, 11, string.len(e.message))
+            local itemString = string.lower(string.sub(e.message, 11, string.len(e.message)))
 
             local amount = itemString:match("%(([^%)]+)%)")
             amount = amount:match("(%d+)")
 
             local itemName = itemString:match("^([^x]+)x%d+")
             itemName = itemName:match("^%s*(.-)%s*$")
+            
+            
 
             boxDict[itemName] = amount
+            saveBoxData()
+        end
+        if string.find(e.message, "You obtain") then
+            --why are the strings on this part of ebox so custom :()
+
+
+            --strip out you obtain
+            
+            local itemString = string.lower(string.sub(e.message, 12, string.len(e.message)-2))
+
+            local amount, itemName = itemString:match("(%d+)%s+([^%p%s]+%s*[^%p%s]+)")
+
+            --get rid of the color coded text that makes is so the key doesnt match for the dict lol
+            itemName = removeColorCodes(itemName, "\x1E\x02")
+
+            --get rid of last if pluralized by the custom box message
+            --need to see if we were loved enough to have correct pluralization 
+            --and if i need a new solutiion that actually uses my brain
+            if tonumber(amount) > 1 then
+                itemName = string.sub(itemName, 1, string.len(itemName)-1)
+            end
+
+            local totalAmount = tonumber(boxDict[itemName]) - tonumber(amount)
+
+            print(totalAmount)
+            
+            boxDict[itemName] = tostring(totalAmount)
+            if totalAmount <= 0 then
+                boxDict[itemName] = 0
+            end
             saveBoxData()
         end
     end
     
 end);
+
+
 
 function loadBoxData()
     if ashita.fs.exists(path) then
