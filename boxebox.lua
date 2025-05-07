@@ -28,7 +28,10 @@ addon.link      = "https://github.com/JonaldDuck/boxebox";
 
 require("common");
 
-local eboxFileName = "ebox.txt";
+local imgui = require('imgui');
+local json = require('json');
+
+local eboxFileName = "ebox.json";
 
 local path = ('%s\\config\\addons\\%s'):fmt(AshitaCore:GetInstallPath(), 'boxebox');
 
@@ -82,19 +85,16 @@ function loadBoxData()
         print("Loading ebox data from file.")
         local file, errorString = io.open(path .. "\\" .. eboxFileName, "r");
         if file ~= nil then
-            for line in file:lines() do
-                local key, value = line:match("([^=]+) = ([^=]+)")
-                if key ~= nil and value ~= nil then
-                    boxDict[key] = value;
-                end
-            end
-            
-
+            boxDict = json.decode(file:read("*a"));
+            if boxDict == nil then
+                boxDict = {}
+            end          
             print("Ebox data found and loaded.  Access the file in the config/addons/boxebox folder to see what is there.")
             io.close(file);
         end
         
         if boxDict == nil then
+            boxDict = {}
             print("No box data found, a new file will be created to track the box.");
         end
         
@@ -110,9 +110,7 @@ function saveBoxData()
     local file, errorString = io.open( path .. "\\" .. eboxFileName, "w+" );
 
     if file ~=nil then
-        for key, value in pairs(boxDict) do
-            file:write(key .. " = " .. value .. "\n")
-        end
+        file:write(json.encode(boxDict))
     end
     io.close(file);
 end
