@@ -22,4 +22,4 @@ To show instructions on how to reset your box contents:
 
 Example image:
 
-![alt text](image.png)
+![alt text](exampleGui.png)
