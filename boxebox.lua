@@ -217,11 +217,9 @@ ashita.events.register("command", "command_callback1", function (e)
             print("Note that if you have logged into another character, this will not track the differences between them or if you've played on multiple.");
         end
         if (args[2] == "show") then
-            print("show ui boxebox")
             showUi = true
         end
         if (args[2] == "hide") then
-            print("hide ui boxebox")
             showUi = false
         end
     end
