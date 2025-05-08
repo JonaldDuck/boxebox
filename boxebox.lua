@@ -161,7 +161,7 @@ ashita.events.register('text_in', 'text_in_cb', function (e)
             
             boxDict[itemName] = tostring(totalAmount)
             if totalAmount <= 0 then
-                boxDict[itemName] = 0
+                boxDict[itemName] = "0"
             end
             saveBoxData()
         end
