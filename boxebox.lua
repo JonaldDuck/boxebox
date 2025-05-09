@@ -157,6 +157,14 @@ ashita.events.register('text_in', 'text_in_cb', function (e)
                 itemName = string.sub(itemName, 1, string.len(itemName)-1)
             end
 
+
+            --NOTE this should probably only happen if there are cases where the item name string is different in this case
+            --look into making a table of item names that we can map correctly?
+            if boxDict[itemName] == nil then
+                boxDict[itemName] = 0
+            end
+
+
             local totalAmount = tonumber(boxDict[itemName]) - tonumber(amount)
             
             boxDict[itemName] = tostring(totalAmount)
